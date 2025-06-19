@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>REAL ID - User Details</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: #00ffe1;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            border: 2px solid #00ffe1;
+            padding: 20px 40px;
+            border-radius: 10px;
+            background-color: #1a1a1a;
+            box-shadow: 0 0 20px #00ffe1;
+        }
+        h1 {
+            color: #00ffe1;
+            margin-bottom: 30px;
+        }
+        p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .logout {
+            margin-top: 20px;
+            text-align: center;
+        }
+        a {
+            color: #ff4c4c;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome, {{ user.name }}!</h1>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Department:</strong> {{ user.department }}</p>
+        <p><strong>Registration Number:</strong> {{ user.registration_number }}</p>
+        <p><strong>Bank Name:</strong> {{ user.bank_name }}</p>
+        <p><strong>Bank Account ID:</strong> {{ user.bank_account_id }}</p>
+        <p><strong>UPI PIN:</strong> {{ user.upi_pin }}</p>
+        <div class="logout">
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+</body>
+</html>
