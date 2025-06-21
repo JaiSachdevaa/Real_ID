@@ -2,41 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrueID Face Recognition</title>
+    <title>REAL ID - Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body>
-    <canvas id="particleCanvas"></canvas> <!-- Background Effect -->
-
-    <div class="container">
-        <h1 class="glitch">TRUEID FACE RECOGNITION</h1>
-
-        <div class="video-container">
-            <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Video Feed">
-            <div id="scan-line"></div>
-        </div>
-
-        <button id="start-scan">START SCAN</button>
-        <p id="scan-status">Waiting for scan...</p>
-
-        <!-- Hacker Console for logs -->
-        <div id="console">
-            <p> > System Ready...</p>
-        </div>
-
-        <!-- Dynamic Scan Logs -->
-        <div class="scan-logs">
-            <h2>Scan History</h2>
-            <ul id="log-list">
-                {% for log in scan_logs %}
-                    <li>{{ log }}</li>
-                {% endfor %}
-            </ul>
-        </div>
+<body class="login-body">
+    <div class="login-box">
+        <h2>Enter Email</h2>
+        <form method="POST" action="{{ url_for('check_email') }}">
+            <input type="email" name="email" placeholder="Email" required>
+            <button type="submit">Continue</button>
+        </form>
+        <p class="not-registered"><a href="{{ url_for('register') }}">Not registered? Click here!</a></p>
+        {% if error %}
+            <p class="error-msg">{{ error }}</p>
+        {% endif %}
     </div>
-
-    <script src="{{ url_for('static', filename='js/particles.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
