@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Options - REAL ID</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .login-box form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .login-box form button {
+            font-weight: bold;
+            font-size: 16px;
+            padding: 10px 25px;
+            margin-bottom: 15px;
+        }
+
+        .not-registered {
+            margin-top: 10px;
+        }
+
+        #video-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        #face-error {
+            color: #ff4f4f;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="login-body">
+    <div class="login-box">
+        <h2>Choose Login Method</h2>
+
+        <!-- Face Login FIRST -->
+        <form id="scanForm">
+            <button type="button" onclick="scanFace()">Login via Face</button>
+        </form>
+
+        <!-- Email OTP Login SECOND -->
+        <form method="POST" action="{{ url_for('send_otp') }}">
+            <button type="submit">Login via Email OTP</button>
+        </form>
+
+        <p class="not-registered"><a href="{{ url_for('logout') }}">Change Email</a></p>
+
+        <div id="video-container">
+            <img id="videoFeed" src="{{ url_for('video_feed') }}" width="300" height="240" />
+        </div>
+
+        <p id="face-error"></p>
+    </div>
+
+    <script>
+        async function scanFace() {
+            const video = document.getElementById("video-container");
+            const errorMsg = document.getElementById("face-error");
+            errorMsg.innerText = "";
+            video.style.display = "block";
+
+            await new Promise(r => setTimeout(r, 2000)); // Let webcam warm up
+
+            const res = await fetch('/start-scan', { method: 'POST' });
+            const data = await res.json();
+
+            if (data.success) {
+                window.location.href = '/dashboard';
+            } else {
+                errorMsg.innerText = "❌ Face doesn't match. Try again later.";
+                video.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
