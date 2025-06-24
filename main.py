@@ -7,16 +7,26 @@ import hashlib
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 import secrets
+from dotenv import load_dotenv
+
+# Load environment variables from .env
+load_dotenv()
+
+# Environment variable checks (optional but recommended)
+required_vars = ['MAIL_USERNAME', 'MAIL_PASSWORD', 'SECRET_KEY']
+for var in required_vars:
+    if not os.getenv(var):
+        raise RuntimeError(f"Missing environment variable: {var}")
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'
+app.secret_key = os.getenv('SECRET_KEY')
 
 # Mail Configuration
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'jaisachdeva017@gmail.com'
-app.config['MAIL_PASSWORD'] = 'rdjl mvrx tjla hied'
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 
 mail = Mail(app)
 otp_store = {}
