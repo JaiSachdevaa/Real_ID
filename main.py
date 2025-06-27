@@ -9,10 +9,8 @@ from flask_mail import Mail, Message
 import secrets
 from dotenv import load_dotenv
 
-# Load environment variables from .env
-load_dotenv()
+load_dotenv(override=True)
 
-# Environment variable checks (optional but recommended)
 required_vars = ['MAIL_USERNAME', 'MAIL_PASSWORD', 'SECRET_KEY']
 for var in required_vars:
     if not os.getenv(var):
@@ -21,7 +19,6 @@ for var in required_vars:
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
-# Mail Configuration
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'
@@ -35,8 +32,7 @@ UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Camera and Face Detection
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 def get_face_embedding(frame):
@@ -54,8 +50,7 @@ def get_face_embedding(frame):
     return embedding
 
 def compare_embeddings(emb1, emb2, threshold=5):
-    distance = np.linalg.norm(emb1 - emb2)
-    return distance < threshold
+    return np.linalg.norm(emb1 - emb2) < threshold
 
 @app.route('/')
 def root():
@@ -72,11 +67,10 @@ def index():
 @app.route('/check_email', methods=['POST'])
 def check_email():
     email = request.form['email']
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM users WHERE email = ?", (email,))
-    user = c.fetchone()
-    conn.close()
+    with sqlite3.connect('database.db') as conn:
+        c = conn.cursor()
+        c.execute("SELECT * FROM users WHERE email = ?", (email,))
+        user = c.fetchone()
     if user:
         session['email'] = email
         return redirect('/choose_login')
@@ -135,18 +129,14 @@ def start_scan():
     embedding = get_face_embedding(frame)
     if embedding is None:
         return jsonify({"success": False})
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("SELECT email, face_embedding FROM users")
-    for email, emb_blob in c.fetchall():
-        stored_emb = np.frombuffer(emb_blob, dtype=np.float32)
-        if stored_emb.shape != embedding.shape:
-            continue
-        if compare_embeddings(embedding, stored_emb):
-            session['email'] = email
-            conn.close()
-            return jsonify({"success": True})
-    conn.close()
+    with sqlite3.connect('database.db') as conn:
+        c = conn.cursor()
+        c.execute("SELECT email, face_embedding FROM users")
+        for email, emb_blob in c.fetchall():
+            stored_emb = np.frombuffer(emb_blob, dtype=np.float32)
+            if stored_emb.shape == embedding.shape and compare_embeddings(embedding, stored_emb):
+                session['email'] = email
+                return jsonify({"success": True})
     return jsonify({"success": False})
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -154,24 +144,19 @@ def register():
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
-        conn = sqlite3.connect('database.db')
-        c = conn.cursor()
-        c.execute("SELECT * FROM users WHERE email = ?", (email,))
-        if c.fetchone():
-            conn.close()
-            return render_template('register.html', error="Email already registered.")
-        conn.close()
-
+        with sqlite3.connect('database.db') as conn:
+            c = conn.cursor()
+            c.execute("SELECT * FROM users WHERE email = ?", (email,))
+            if c.fetchone():
+                return render_template('register.html', error="Email already registered.")
         session['pending_email'] = email
         session['pending_name'] = name
-
         otp = ''.join(str(secrets.randbelow(10)) for _ in range(6))
         otp_store[email] = otp
         msg = Message('Your REAL ID Registration OTP', sender=app.config['MAIL_USERNAME'], recipients=[email])
         msg.body = f"Your OTP for REAL ID registration is: {otp}"
         mail.send(msg)
         return redirect('/verify_register_otp')
-
     return render_template('register.html')
 
 @app.route('/verify_register_otp', methods=['GET', 'POST'])
@@ -202,16 +187,14 @@ def capture_face():
     embedding = get_face_embedding(frame)
     if embedding is None:
         return "No face detected"
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM users WHERE email = ?", (email,))
-    if c.fetchone():
-        conn.close()
-        return "This email is already registered."
-    c.execute("INSERT INTO users (email, name, face_embedding) VALUES (?, ?, ?)",
-              (email, name, embedding.tobytes()))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect('database.db') as conn:
+        c = conn.cursor()
+        c.execute("SELECT * FROM users WHERE email = ?", (email,))
+        if c.fetchone():
+            return "This email is already registered."
+        c.execute("INSERT INTO users (email, name, face_embedding) VALUES (?, ?, ?)",
+                  (email, name, embedding.tobytes()))
+        conn.commit()
     session.pop('pending_email')
     session.pop('pending_name')
     session['email'] = email
@@ -221,13 +204,12 @@ def capture_face():
 def dashboard():
     if 'email' not in session:
         return redirect('/')
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("SELECT id, filename, filepath FROM files WHERE email = ?", (session['email'],))
-    files = c.fetchall()
-    c.execute("SELECT id, service, secret FROM passwords WHERE email = ?", (session['email'],))
-    passwords = c.fetchall()
-    conn.close()
+    with sqlite3.connect('database.db') as conn:
+        c = conn.cursor()
+        c.execute("SELECT id, filename, filepath FROM files WHERE email = ?", (session['email'],))
+        files = c.fetchall()
+        c.execute("SELECT id, service, secret FROM passwords WHERE email = ?", (session['email'],))
+        passwords = c.fetchall()
     return render_template('dashboard.html', files=files, passwords=passwords)
 
 @app.route('/upload', methods=['POST'])
@@ -240,12 +222,11 @@ def upload():
     filename = secure_filename(file.filename)
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("INSERT INTO files (email, filename, filepath) VALUES (?, ?, ?)",
-              (session['email'], filename, filepath))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect('database.db') as conn:
+        c = conn.cursor()
+        c.execute("INSERT INTO files (email, filename, filepath) VALUES (?, ?, ?)",
+                  (session['email'], filename, filepath))
+        conn.commit()
     return redirect('/dashboard')
 
 @app.route('/add_password', methods=['POST'])
@@ -254,37 +235,34 @@ def add_password():
         return redirect('/')
     service = request.form['service']
     secret = request.form['secret']
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("INSERT INTO passwords (email, service, secret) VALUES (?, ?, ?)",
-              (session['email'], service, secret))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect('database.db') as conn:
+        c = conn.cursor()
+        c.execute("INSERT INTO passwords (email, service, secret) VALUES (?, ?, ?)",
+                  (session['email'], service, secret))
+        conn.commit()
     return redirect('/dashboard')
 
 @app.route('/delete_file/<int:file_id>')
 def delete_file(file_id):
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("SELECT filepath FROM files WHERE id = ?", (file_id,))
-    path = c.fetchone()
-    if path:
-        try:
-            os.remove(path[0])
-        except:
-            pass
-    c.execute("DELETE FROM files WHERE id = ?", (file_id,))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect('database.db') as conn:
+        c = conn.cursor()
+        c.execute("SELECT filepath FROM files WHERE id = ?", (file_id,))
+        path = c.fetchone()
+        if path:
+            try:
+                os.remove(path[0])
+            except:
+                pass
+        c.execute("DELETE FROM files WHERE id = ?", (file_id,))
+        conn.commit()
     return redirect('/dashboard')
 
 @app.route('/delete_password/<int:password_id>')
 def delete_password(password_id):
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    c.execute("DELETE FROM passwords WHERE id = ?", (password_id,))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect('database.db') as conn:
+        c = conn.cursor()
+        c.execute("DELETE FROM passwords WHERE id = ?", (password_id,))
+        conn.commit()
     return redirect('/dashboard')
 
 @app.route('/logout')
