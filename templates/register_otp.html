@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Registration OTP - REAL ID</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .login-box input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+        }
+    </style>
+</head>
+<body class="login-body">
+    <div class="login-box">
+        <h2>Email Verification</h2>
+        <p class="description">
+            We sent a 6-digit code to <strong>{{ email }}</strong>
+        </p>
+
+        <form method="POST" action="{{ url_for('verify_register_otp') }}">
+            <input type="text" name="otp" placeholder="Enter OTP" required>
+            <button type="submit">Verify</button>
+        </form>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <a href="{{ url_for('register') }}">Go back</a>
+    </div>
+</body>
+</html>
