@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to REAL ID</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="welcome-body">
+    <div class="welcome-overlay">
+        <div class="welcome-content">
+            <h1>Welcome to REAL ID</h1>
+            <p>Your Secure Personal Vault Powered by Face Recognition</p>
+            <a href="{{ url_for('index') }}" class="btn-welcome">Proceed to Login</a>
+        </div>
+    </div>
+</body>
+</html>
