@@ -2,23 +2,424 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Face Scan - REAL ID</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Face - REAL ID</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e1a;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at center, #1a1f3a 0%, #0a0e1a 50%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+        }
+
+        .register-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 3rem;
+        }
+
+        .instructions {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .instructions h4 {
+            color: #00f0ff;
+            margin-bottom: 1rem;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .instructions li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .instructions li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #00f0ff;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 2rem;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 3px solid #00f0ff;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+            background: #000;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #videoElement {
+            width: 100%;
+            height: auto;
+            display: block;
+            transform: scaleX(-1); /* Mirror effect */
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .video-loading {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .scan-corners {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            left: 10%;
+            top: 10%;
+        }
+
+        .scan-corners::before,
+        .scan-corners::after,
+        .scan-corners span::before,
+        .scan-corners span::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #00f0ff;
+        }
+
+        .scan-corners::before {
+            top: 0;
+            left: 0;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .scan-corners::after {
+            top: 0;
+            right: 0;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .scan-corners span::before {
+            bottom: 0;
+            left: 0;
+            border-right: none;
+            border-top: none;
+        }
+
+        .scan-corners span::after {
+            bottom: 0;
+            right: 0;
+            border-left: none;
+            border-top: none;
+        }
+
+        .btn-capture {
+            padding: 1rem 3rem;
+            background: linear-gradient(135deg, #ff0080, #ff8c00);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-capture:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 0, 128, 0.5);
+        }
+
+        .btn-capture:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            color: #ff6b6b;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            color: #4ade80;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .status {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 10px;
+            background: rgba(0, 240, 255, 0.1);
+            color: #00f0ff;
+            font-weight: 600;
+        }
+    </style>
 </head>
-<body class="login-body">
-    <div class="login-box">
-        <h2>Scan Your Face</h2>
-        <video id="video" autoplay width="300" height="240" style="border-radius: 10px; margin-bottom: 20px;"></video>
-        <form method="POST" action="{{ url_for('capture_face') }}">
-            <button type="submit">Capture & Register</button>
-        </form>
-        <p class="not-registered"><a href="{{ url_for('logout') }}">Cancel</a></p>
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="container">
+        <div class="register-box">
+            <h2 class="title">Register Your Face</h2>
+            <p class="subtitle">We'll use facial recognition to secure your account</p>
+
+            <div class="instructions">
+                <h4>📸 Tips for Best Results:</h4>
+                <ul>
+                    <li>Ensure good lighting on your face</li>
+                    <li>Look directly at the camera</li>
+                    <li>Remove glasses if possible</li>
+                    <li>Keep a neutral expression</li>
+                </ul>
+            </div>
+
+            <div class="video-container">
+                <div class="video-loading">Click "Start Camera" to begin</div>
+                <video id="videoElement" autoplay playsinline></video>
+                <canvas id="canvas"></canvas>
+                <div class="scan-overlay">
+                    <div class="scan-corners"><span></span></div>
+                </div>
+            </div>
+
+            <div class="status" id="status">Click button below to start camera</div>
+
+            <button class="btn-capture" id="startCameraBtn" onclick="startCamera()" style="margin-bottom: 1rem;">
+                📷 Start Camera
+            </button>
+            
+            <button class="btn-capture" id="captureBtn" onclick="captureFace()" style="display: none;">
+                Capture & Complete Registration
+            </button>
+
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+        </div>
     </div>
+
     <script>
-        const video = document.getElementById('video');
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => { video.srcObject = stream; })
-            .catch(err => { console.error("Camera access denied:", err); });
+        const videoElement = document.getElementById('videoElement');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const startCameraBtn = document.getElementById('startCameraBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const status = document.getElementById('status');
+        const videoLoading = document.querySelector('.video-loading');
+        
+        let stream = null;
+
+        async function startCamera() {
+            try {
+                status.textContent = '📷 Requesting camera access...';
+                startCameraBtn.disabled = true;
+                
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    } 
+                });
+                
+                videoElement.srcObject = stream;
+                videoLoading.style.display = 'none';
+                
+                videoElement.onloadedmetadata = () => {
+                    status.textContent = '✓ Camera ready - Position your face in the frame';
+                    status.style.background = 'rgba(0, 255, 0, 0.1)';
+                    status.style.color = '#4ade80';
+                    
+                    startCameraBtn.style.display = 'none';
+                    captureBtn.style.display = 'block';
+                };
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                let errorMsg = 'Camera access denied. ';
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMsg += 'Please allow camera access and refresh the page.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMsg += 'No camera found on your device.';
+                } else if (error.name === 'NotReadableError') {
+                    errorMsg += 'Camera is already in use by another application.';
+                } else {
+                    errorMsg += error.message;
+                }
+                
+                videoLoading.textContent = '⚠️ ' + errorMsg;
+                videoLoading.style.color = '#ff6b6b';
+                status.textContent = '⚠️ Camera error';
+                status.style.background = 'rgba(255, 0, 0, 0.1)';
+                status.style.color = '#ff6b6b';
+                startCameraBtn.disabled = false;
+                showError(errorMsg);
+            }
+        }
+
+        async function captureFace() {
+            if (!stream) {
+                showError('Please start the camera first');
+                return;
+            }
+
+            captureBtn.disabled = true;
+            captureBtn.textContent = 'Capturing...';
+            status.textContent = '📸 Capturing your face...';
+            errorMessage.classList.remove('show');
+            successMessage.classList.remove('show');
+
+            try {
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                
+                canvas.toBlob(async (blob) => {
+                    const formData = new FormData();
+                    formData.append('image', blob, 'face.jpg');
+                    
+                    try {
+                        const response = await fetch('/capture_face', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            if (stream) {
+                                stream.getTracks().forEach(track => track.stop());
+                            }
+                            
+                            successMessage.textContent = '✓ Face registered successfully! Redirecting to your vault...';
+                            successMessage.classList.add('show');
+                            status.textContent = '✓ Registration complete!';
+                            status.style.background = 'rgba(0, 255, 0, 0.1)';
+                            status.style.color = '#4ade80';
+
+                            setTimeout(() => {
+                                window.location.href = '/vault';
+                            }, 2000);
+                        } else {
+                            showError(data.error || 'Failed to capture face. Please try again.');
+                            captureBtn.disabled = false;
+                            captureBtn.textContent = 'Try Again';
+                            status.textContent = 'Position your face within the frame';
+                        }
+                    } catch (error) {
+                        showError('Connection error. Please try again.');
+                        captureBtn.disabled = false;
+                        captureBtn.textContent = 'Try Again';
+                    }
+                }, 'image/jpeg', 0.95);
+                
+            } catch (error) {
+                showError('Failed to capture image. Please try again.');
+                captureBtn.disabled = false;
+                captureBtn.textContent = 'Try Again';
+                status.textContent = 'Error occurred. Please try again.';
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
     </script>
 </body>
 </html>

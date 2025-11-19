@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Authentication - REAL ID</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e1a;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at center, #1a1f3a 0%, #0a0e1a 50%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 2rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            color: #00f0ff;
+            transform: translateX(-5px);
+        }
+
+        .auth-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 3rem;
+        }
+
+        .email-display {
+            text-align: center;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 3rem;
+            color: #00f0ff;
+        }
+
+        .auth-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 0, 128, 0.1), rgba(0, 240, 255, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .auth-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0, 240, 255, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 240, 255, 0.2);
+        }
+
+        .auth-card:hover::before {
+            opacity: 1;
+        }
+
+        .auth-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-card p {
+            color: rgba(255, 255, 255, 0.6);
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-card .badge {
+            display: inline-block;
+            background: rgba(0, 240, 255, 0.2);
+            color: #00f0ff;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        #videoContainer {
+            display: none;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        #videoElement {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 15px;
+            border: 3px solid #00f0ff;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+            transform: scaleX(-1);
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .scanning-text {
+            margin-top: 1rem;
+            color: #00f0ff;
+            font-size: 1.1rem;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .camera-controls {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-scan {
+            padding: 0.8rem 2rem;
+            background: linear-gradient(135deg, #ff0080, #ff8c00);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-scan:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 0, 128, 0.4);
+        }
+
+        .btn-cancel {
+            padding: 0.8rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .error-message {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 2rem;
+            color: #ff6b6b;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(26, 31, 58, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+        }
+
+        .otp-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+            letter-spacing: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: #00f0ff;
+        }
+
+        .btn-verify {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #ff0080, #ff8c00);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 0, 128, 0.4);
+        }
+
+        .btn-verify:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="container">
+        <a href="/login" class="back-btn">
+            ← Back
+        </a>
+
+        <div class="auth-box">
+            <h2 class="title">Choose Authentication Method</h2>
+            <p class="subtitle">Select how you'd like to access your vault</p>
+
+            <div class="email-display">
+                Logging in as: <strong>{{ email }}</strong>
+            </div>
+
+            <div class="auth-options">
+                <div class="auth-card" onclick="startFaceScan()">
+                    <div class="auth-icon">👤</div>
+                    <h3>Face Recognition</h3>
+                    <p>Quick and secure biometric login</p>
+                    <span class="badge">RECOMMENDED</span>
+                </div>
+
+                <div class="auth-card" onclick="startOTPVerification()">
+                    <div class="auth-icon">✉️</div>
+                    <h3>Email OTP</h3>
+                    <p>Receive a code via email</p>
+                    <span class="badge">BACKUP METHOD</span>
+                </div>
+            </div>
+
+            <div id="videoContainer">
+                <video id="videoElement" autoplay playsinline></video>
+                <canvas id="canvas"></canvas>
+                <p class="scanning-text" id="scanningText">Position your face in the frame</p>
+                <div class="camera-controls">
+                    <button class="btn-scan" onclick="scanNow()">Scan Face</button>
+                    <button class="btn-cancel" onclick="cancelFaceScan()">Cancel</button>
+                </div>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+        </div>
+    </div>
+
+    <div id="otpModal" class="modal">
+        <div class="modal-content">
+            <h3>Enter OTP</h3>
+            <p>We've sent a 6-digit code to your email</p>
+            <input 
+                type="text" 
+                class="otp-input" 
+                id="otpInput" 
+                placeholder="000000" 
+                maxlength="6"
+            >
+            <button class="btn-verify" id="verifyBtn" onclick="verifyOTP()">
+                Verify
+            </button>
+            <div id="otpError" class="error-message" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+
+    <script>
+        const videoContainer = document.getElementById('videoContainer');
+        const videoElement = document.getElementById('videoElement');
+        const canvas = document.getElementById('canvas');
+        const errorMessage = document.getElementById('errorMessage');
+        const otpModal = document.getElementById('otpModal');
+        const otpInput = document.getElementById('otpInput');
+        const otpError = document.getElementById('otpError');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const scanningText = document.getElementById('scanningText');
+        
+        let stream = null;
+
+        async function startFaceScan() {
+            errorMessage.classList.remove('show');
+            videoContainer.style.display = 'block';
+            
+            try {
+                scanningText.textContent = '📷 Starting camera...';
+                
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    } 
+                });
+                
+                videoElement.srcObject = stream;
+                scanningText.textContent = '✓ Camera ready - Position your face and click "Scan Face"';
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                let errorMsg = 'Camera access denied. ';
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMsg += 'Please allow camera access and try again.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMsg += 'No camera found on your device.';
+                } else if (error.name === 'NotReadableError') {
+                    errorMsg += 'Camera is in use by another application.';
+                } else {
+                    errorMsg += error.message;
+                }
+                
+                showError(errorMsg + ' You can use Email OTP instead.');
+                videoContainer.style.display = 'none';
+            }
+        }
+
+        async function scanNow() {
+            if (!stream) {
+                showError('Please allow camera access first');
+                return;
+            }
+
+            scanningText.textContent = '🔍 Scanning your face...';
+            
+            try {
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(videoElement, 0, 0);
+                
+                canvas.toBlob(async (blob) => {
+                    const formData = new FormData();
+                    formData.append('image', blob, 'face.jpg');
+                    
+                    const response = await fetch('/start_face_scan', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+
+                    if (data.success) {
+                        scanningText.textContent = '✓ Face recognized!';
+                        window.location.href = '/vault';
+                    } else {
+                        videoContainer.style.display = 'none';
+                        showError(data.error || 'Face not recognized. Please try again or use OTP.');
+                    }
+                }, 'image/jpeg', 0.95);
+                
+            } catch (error) {
+                showError('Connection error. Please try again.');
+                videoContainer.style.display = 'none';
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+            }
+        }
+
+        function cancelFaceScan() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            videoContainer.style.display = 'none';
+        }
+
+        async function startOTPVerification() {
+            errorMessage.classList.remove('show');
+
+            try {
+                const response = await fetch('/send_otp', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    otpModal.classList.add('show');
+                    otpInput.focus();
+                } else {
+                    showError(data.error || 'Failed to send OTP. Please try again.');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            }
+        }
+
+        async function verifyOTP() {
+            const otp = otpInput.value.trim();
+
+            if (otp.length !== 6) {
+                showOTPError('Please enter a 6-digit OTP');
+                return;
+            }
+
+            verifyBtn.disabled = true;
+            verifyBtn.textContent = 'Verifying...';
+
+            try {
+                const response = await fetch('/verify_otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ otp })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = '/vault';
+                } else {
+                    showOTPError(data.error || 'Invalid OTP. Please try again.');
+                    verifyBtn.disabled = false;
+                    verifyBtn.textContent = 'Verify';
+                }
+            } catch (error) {
+                showOTPError('Connection error. Please try again.');
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = 'Verify';
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+
+        function showOTPError(message) {
+            otpError.textContent = message;
+            otpError.classList.add('show');
+            
+            setTimeout(() => {
+                otpError.classList.remove('show');
+            }, 5000);
+        }
+
+        otpInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                verifyOTP();
+            }
+        });
+
+        otpInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+
+        otpModal.addEventListener('click', (e) => {
+            if (e.target === otpModal) {
+                otpModal.classList.remove('show');
+                otpInput.value = '';
+                otpError.classList.remove('show');
+            }
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>
