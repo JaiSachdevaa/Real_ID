@@ -10,15 +10,6 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
-# Debug: Print environment variables
-print("=" * 60)
-print("ENVIRONMENT VARIABLES CHECK:")
-print(f"SECRET_KEY: {'✓ SET' if os.getenv('SECRET_KEY') else '✗ NOT SET'}")
-print(f"MAIL_USERNAME: {os.getenv('MAIL_USERNAME') or '✗ NOT SET'}")
-print(f"MAIL_PASSWORD: {'✓ SET' if os.getenv('MAIL_PASSWORD') else '✗ NOT SET'}")
-print(f"MAIL_SERVER: {os.getenv('MAIL_SERVER', 'smtp.gmail.com')}")
-print(f"MAIL_PORT: {os.getenv('MAIL_PORT', 587)}")
-print("=" * 60)
 
 required_vars = ['MAIL_USERNAME', 'MAIL_PASSWORD', 'SECRET_KEY']
 for var in required_vars:
