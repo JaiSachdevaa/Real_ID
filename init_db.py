@@ -12,13 +12,12 @@ if os.path.exists(db_path):
         print("Aborted. Database unchanged.")
         exit()
     os.remove(db_path)
-    print("✓ Old database deleted.")
+
 
 # Create new database
 conn = sqlite3.connect(db_path)
 c = conn.cursor()
 
-print("\n🔨 Creating database tables...")
 
 # Users table
 c.execute("""
@@ -29,7 +28,6 @@ CREATE TABLE users (
     face_embedding BLOB
 )
 """)
-print("✓ Created 'users' table")
 
 # Stored Passwords table
 c.execute("""
@@ -41,7 +39,7 @@ CREATE TABLE passwords (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 """)
-print("✓ Created 'passwords' table")
+
 
 # Commit and close
 conn.commit()
@@ -49,11 +47,5 @@ conn.commit()
 # Verify tables were created
 c.execute("SELECT name FROM sqlite_master WHERE type='table'")
 tables = c.fetchall()
-print("\n📋 Database tables created:")
-for table in tables:
-    print(f"   - {table[0]}")
 
 conn.close()
-
-print(f"\n✅ Database initialized successfully at: {os.path.abspath(db_path)}")
-print("You can now run: python app.py")
