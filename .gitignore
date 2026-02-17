@@ -1,67 +1,41 @@
-# Python
+# Python Cache / Bytecode
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
 
-# Environment
-env/
+# Virtual Environments
 venv/
+env/
 ENV/
-*.env
+*.venv/
 
-# VS Code
-.vscode/
-.history/
+# Environment Variables
+.env
 
-# Flask / Instance / Database
+# Flask / App Data
 instance/
 *.db
 database.db
+*.session
+
+# Security / Secrets (CRITICAL)
+key.pem
+cert.pem
 
 # Logs
 *.log
 logs/
 
-# Byte-compiled / cache
-*.cache
-.cache/
+# VS Code / IDE
+.vscode/
+.history/
+.idea/
 
-# Python packaging
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# OS files
+# OS Files
 .DS_Store
 Thumbs.db
 
-# Pip
-pip-wheel-metadata/
+# Build / Distribution
 
-# Virtual environment
-*.venv
-
-# PyInstaller
-*.spec
-
-# Flask session files
-*.session
-
-# Backups
-*.bak
-*.tmp
-
-# IDE
-.idea/
+build/
+dist/
+*.egg-info/
