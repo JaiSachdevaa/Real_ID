@@ -7,9 +7,10 @@ import hashlib
 from flask_mail import Mail, Message
 import secrets
 from dotenv import load_dotenv
+from flask_cors import CORS
+import time
 
 load_dotenv(override=True)
-
 
 required_vars = ['MAIL_USERNAME', 'MAIL_PASSWORD', 'SECRET_KEY']
 for var in required_vars:
@@ -19,6 +20,26 @@ for var in required_vars:
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
+# ============================================================================
+# CHROME EXTENSION CORS CONFIGURATION
+# ============================================================================
+# Enable CORS for Chrome extension to communicate with backend
+CORS(app, 
+     origins=['chrome-extension://*'],  # Allow all Chrome extensions
+     supports_credentials=True)         # Allow session cookies
+
+# ============================================================================
+# SESSION CONFIGURATION FOR CHROME EXTENSION
+# ============================================================================
+# These settings are REQUIRED for extension to work with session cookies
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'     # Allow cross-origin requests
+app.config['SESSION_COOKIE_SECURE'] = True         # HTTPS only (required for SameSite=None)
+app.config['SESSION_COOKIE_HTTPONLY'] = True       # Prevent JavaScript access (security)
+app.config['PERMANENT_SESSION_LIFETIME'] = 300     # 5 minute session timeout
+
+# ============================================================================
+# MAIL CONFIGURATION
+# ============================================================================
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'
@@ -390,5 +411,189 @@ def logout():
     session.clear()
     return redirect('/')
 
+
+# ============================================================================
+# CHROME EXTENSION API ENDPOINTS
+# ============================================================================
+
+@app.route('/extension/verify_face', methods=['POST'])
+def verify_face_extension():
+    """
+    Face verification endpoint for Chrome extension
+    
+    Security:
+    - Accepts face image from extension
+    - Verifies against stored embeddings
+    - Creates session on success
+    - Session authorizes credential retrieval
+    """
+    if 'image' not in request.files:
+        return jsonify({
+            "success": False,
+            "error": "No image provided"
+        }), 400
+    
+    file = request.files['image']
+    npimg = np.frombuffer(file.read(), np.uint8)
+    frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+    
+    if frame is None:
+        return jsonify({
+            "success": False,
+            "error": "Failed to read image"
+        }), 400
+    
+    # Get face embedding
+    embedding = get_face_embedding(frame)
+    if embedding is None:
+        return jsonify({
+            "success": False,
+            "error": "No face detected"
+        }), 400
+    
+    # Compare with stored faces
+    with sqlite3.connect('database.db') as conn:
+        c = conn.cursor()
+        c.execute("SELECT email, face_embedding FROM users")
+        
+        for email, emb_blob in c.fetchall():
+            stored_emb = np.frombuffer(emb_blob, dtype=np.float32)
+            
+            if stored_emb.shape == embedding.shape and compare_embeddings(embedding, stored_emb):
+                # Face recognized - create session
+                session['email'] = email
+                session['verified_at'] = time.time()
+                
+                print(f"✓ [Extension] Face verified for: {email}")
+                
+                return jsonify({
+                    "success": True,
+                    "email": email
+                })
+    
+    print("✗ [Extension] Face not recognized")
+    return jsonify({
+        "success": False,
+        "error": "Face not recognized"
+    }), 401
+
+
+@app.route('/extension/get_credentials', methods=['POST'])
+def get_credentials_for_extension():
+    """
+    Fetch credentials for a specific domain
+    
+    Security:
+    - Requires active session (user already verified face)
+    - Only returns credentials for authenticated user
+    - Credentials are for the requested domain only
+    
+    Request: { "domain": "example.com" }
+    Response: { "success": true, "email": "...", "password": "..." }
+    """
+    # Check authentication
+    if 'email' not in session:
+        return jsonify({
+            "success": False,
+            "error": "Not authenticated. Please verify your face first."
+        }), 401
+    
+    # Check session age (5 minute timeout)
+    if time.time() - session.get('verified_at', 0) > 300:
+        session.clear()
+        return jsonify({
+            "success": False,
+            "error": "Session expired. Please verify your face again."
+        }), 401
+    
+    user_email = session['email']
+    data = request.json
+    domain = data.get('domain', '').lower().strip()
+    
+    if not domain:
+        return jsonify({
+            "success": False,
+            "error": "Domain is required"
+        }), 400
+    
+    try:
+        with sqlite3.connect('database.db') as conn:
+            c = conn.cursor()
+            
+            # Search for credentials matching this domain
+            # Format in DB: "domain|username" or just "domain"
+            c.execute("""
+                SELECT id, service, secret 
+                FROM passwords 
+                WHERE email = ? 
+                AND (service LIKE ? OR service LIKE ? OR service = ?)
+                ORDER BY created_at DESC
+                LIMIT 1
+            """, (user_email, f"%{domain}%", f"{domain}|%", domain))
+            
+            result = c.fetchone()
+            
+            if not result:
+                print(f"✗ [Extension] No credentials found for {domain}")
+                return jsonify({
+                    "success": False,
+                    "error": f"No credentials found for {domain}"
+                }), 404
+            
+            password_id, service, encrypted_secret = result
+            
+            # Parse service (format: "domain|username" or just "domain")
+            if '|' in service:
+                stored_domain, username = service.split('|', 1)
+            else:
+                stored_domain = service
+                username = user_email  # Default to user's email
+            
+            # Decrypt the secret (currently stored as plaintext)
+            # TODO: Implement proper encryption in production
+            decrypted_password = encrypted_secret
+            
+            print(f"✓ [Extension] Credentials found for {domain} (user: {username})")
+            
+            return jsonify({
+                "success": True,
+                "email": username,
+                "password": decrypted_password,
+                "domain": stored_domain
+            })
+            
+    except Exception as e:
+        print(f"✗ [Extension] Error fetching credentials: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": "Failed to fetch credentials"
+        }), 500
+
+
+@app.route('/extension/check_session', methods=['GET'])
+def check_extension_session():
+    """
+    Check if user has active session
+    Used by extension to verify authentication status
+    """
+    if 'email' in session:
+        # Check if session is still valid (5 minute timeout)
+        if time.time() - session.get('verified_at', 0) <= 300:
+            return jsonify({
+                "authenticated": True,
+                "email": session['email']
+            })
+        else:
+            session.clear()
+    
+    return jsonify({
+        "authenticated": False
+    }), 401
+
+
 if __name__ == '__main__':
+    # For development with self-signed certificate:
+    # app.run(debug=True, ssl_context=('cert.pem', 'key.pem'))
+    
+    # For development without SSL (use ngrok for HTTPS):
     app.run(debug=True)
