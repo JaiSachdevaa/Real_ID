@@ -20,26 +20,19 @@ for var in required_vars:
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 
-# ============================================================================
 # CHROME EXTENSION CORS CONFIGURATION
-# ============================================================================
 # Enable CORS for Chrome extension to communicate with backend
 CORS(app, 
-     origins=['chrome-extension://*'],  # Allow all Chrome extensions
-     supports_credentials=True)         # Allow session cookies
+     origins=['chrome-extension://*'],  
+     supports_credentials=True)         
 
-# ============================================================================
-# SESSION CONFIGURATION FOR CHROME EXTENSION
-# ============================================================================
-# These settings are REQUIRED for extension to work with session cookies
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'     # Allow cross-origin requests
-app.config['SESSION_COOKIE_SECURE'] = True         # HTTPS only (required for SameSite=None)
-app.config['SESSION_COOKIE_HTTPONLY'] = True       # Prevent JavaScript access (security)
-app.config['PERMANENT_SESSION_LIFETIME'] = 300     # 5 minute session timeout
+# SESSION CONFIGURATION FOR CHROME EXTENSIOn
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'     
+app.config['SESSION_COOKIE_SECURE'] = True       
+app.config['SESSION_COOKIE_HTTPONLY'] = True       
+app.config['PERMANENT_SESSION_LIFETIME'] = 300     
 
-# ============================================================================
 # MAIL CONFIGURATION
-# ============================================================================
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'
@@ -412,9 +405,7 @@ def logout():
     return redirect('/')
 
 
-# ============================================================================
 # CHROME EXTENSION API ENDPOINTS
-# ============================================================================
 
 @app.route('/extension/verify_face', methods=['POST'])
 def verify_face_extension():
@@ -520,8 +511,7 @@ def get_credentials_for_extension():
         with sqlite3.connect('database.db') as conn:
             c = conn.cursor()
             
-            # Search for credentials matching this domain
-            # Format in DB: "domain|username" or just "domain"
+            
             c.execute("""
                 SELECT id, service, secret 
                 FROM passwords 
@@ -592,8 +582,4 @@ def check_extension_session():
 
 
 if __name__ == '__main__':
-    # For development with self-signed certificate:
-    # app.run(debug=True, ssl_context=('cert.pem', 'key.pem'))
-    
-    # For development without SSL (use ngrok for HTTPS):
-    app.run(debug=True)
+    app.run(host="0.0.0.0",port=5000, ssl_context=("cert.pem","key.pem"))
