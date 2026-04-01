@@ -1,451 +1,288 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - REAL ID</title>
+    <title>Register — REAL ID</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='shared.css') }}">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0a0e1a;
-            color: #ffffff;
-            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
         }
-
-        .bg-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .register-wrapper {
             width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: radial-gradient(ellipse at center, #1a1f3a 0%, #0a0e1a 50%);
+            max-width: 480px;
+            position: relative;
+            z-index: 1;
         }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            padding: 2rem;
-        }
-
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: rgba(255, 255, 255, 0.6);
-            text-decoration: none;
-            margin-bottom: 2rem;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .back-btn:hover {
-            color: #00f0ff;
-            transform: translateX(-5px);
-        }
-
-        .register-box {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 3rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .logo {
+        .page-logo {
             text-align: center;
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ff0080, #00f0ff);
+            margin-bottom: 2rem;
+        }
+        .page-logo a {
+            font-family: 'Syne', sans-serif;
+            font-size: 2rem; font-weight: 800;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        .page-logo a span {
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-cyan));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 1rem;
         }
-
-        .title {
-            text-align: center;
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+        .register-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 3rem 2.8rem;
+            backdrop-filter: blur(30px) saturate(180%);
+            box-shadow: var(--shadow-card);
+            opacity: 0;
+            transform: translateY(30px);
         }
-
-        .subtitle {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 2.5rem;
+        .register-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.7rem; font-weight: 800;
+            margin-bottom: 0.4rem;
         }
-
-        .form-group {
-            margin-bottom: 1.5rem;
+        .register-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.2rem;
         }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 500;
-        }
-
-        .form-input {
+        .submit-btn {
             width: 100%;
             padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: white;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #00f0ff;
-            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.1);
-        }
-
-        .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, #ff0080, #ff8c00);
+            background: var(--btn-primary-bg);
             border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 700;
+            border-radius: 14px;
+            color: #fff;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem; font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 1rem;
+            transition: all 0.25s;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            box-shadow: 0 4px 20px var(--btn-primary-shadow);
+            margin-top: 0.5rem;
         }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255, 0, 128, 0.4);
-        }
-
-        .btn-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .login-link {
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--btn-primary-shadow); }
+        .submit-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+        .login-prompt {
             text-align: center;
-            margin-top: 2rem;
-            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            margin-top: 1.8rem;
         }
+        .login-prompt a { color: var(--accent-cyan); text-decoration: none; font-weight: 600; }
+        .login-prompt a:hover { text-decoration: underline; }
+        .corner-theme-toggle { position: fixed; top: 1.2rem; right: 1.5rem; z-index: 999; }
 
-        .login-link a {
-            color: #00f0ff;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .login-link a:hover {
-            color: #ff0080;
-        }
-
-        .error-message, .success-message {
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            display: none;
-        }
-
-        .error-message {
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid rgba(255, 0, 0, 0.3);
-            color: #ff6b6b;
-        }
-
-        .success-message {
-            background: rgba(0, 255, 0, 0.1);
-            border: 1px solid rgba(0, 255, 0, 0.3);
-            color: #4ade80;
-        }
-
-        .error-message.show, .success-message.show {
-            display: block;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+        /* OTP Modal overrides */
+        .modal-content h3 { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.6rem; }
+        .modal-content p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem; }
+        .modal-content strong { color: var(--accent-cyan); }
+        .verify-btn {
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: rgba(26, 31, 58, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 3rem;
-            max-width: 450px;
-            width: 90%;
-            text-align: center;
-        }
-
-        .modal-content h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .modal-content p {
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 2rem;
-        }
-
-        .otp-input {
-            width: 100%;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: white;
-            font-size: 1.5rem;
-            text-align: center;
-            letter-spacing: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .otp-input:focus {
-            outline: none;
-            border-color: #00f0ff;
-        }
-
-        .btn-verify {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, #ff0080, #ff8c00);
+            padding: 0.9rem;
+            background: var(--btn-primary-bg);
             border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 700;
+            border-radius: 14px;
+            color: #fff;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem; font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.25s;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            box-shadow: 0 4px 20px var(--btn-primary-shadow);
         }
-
-        .btn-verify:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255, 0, 128, 0.4);
-        }
-
-        .btn-verify:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
+        .verify-btn:hover { transform: translateY(-2px); }
+        .verify-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
     </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
+    <div class="corner-theme-toggle">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+            <span class="theme-icon">☀️</span>
+        </button>
+    </div>
 
-    <div class="container">
-        <a href="/" class="back-btn">
-            ← Back to Home
-        </a>
+    <div class="register-wrapper">
+        <div class="page-logo">
+            <a href="/">REAL<span>ID</span></a>
+        </div>
 
-        <div class="register-box">
-            <div class="logo">REAL ID</div>
-            <h2 class="title">Create Account</h2>
-            <p class="subtitle">Join thousands securing their passwords</p>
+        <div class="register-card" id="registerCard">
+            <a href="/" class="back-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back to Home
+            </a>
 
-            <div id="errorMessage" class="error-message"></div>
-            <div id="successMessage" class="success-message"></div>
+            <h1 class="register-title">Create Account</h1>
+            <p class="register-subtitle">Join thousands securing their passwords</p>
 
-            <form id="registerForm">
+            <div id="registerAlert" class="alert alert-error"></div>
+            <div id="registerSuccess" class="alert alert-success"></div>
+
+            <form id="registerForm" novalidate>
                 <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input 
-                        type="text" 
-                        class="form-input" 
-                        id="name" 
-                        placeholder="John Doe" 
+                    <label class="form-label" for="name">Full Name</label>
+                    <input
+                        type="text"
+                        id="name"
+                        class="form-input"
+                        placeholder="John Doe"
                         required
+                        autocomplete="name"
                     >
                 </div>
-
                 <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input 
-                        type="email" 
-                        class="form-input" 
-                        id="email" 
-                        placeholder="you@example.com" 
+                    <label class="form-label" for="email">Email Address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        class="form-input"
+                        placeholder="you@example.com"
                         required
+                        autocomplete="email"
                     >
                 </div>
-
-                <button type="submit" class="btn-submit" id="submitBtn">
+                <button type="submit" class="submit-btn" id="submitBtn">
                     Continue with Email Verification
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
             </form>
 
-            <div class="login-link">
+            <p class="login-prompt">
                 Already have an account? <a href="/login">Sign in</a>
-            </div>
+            </p>
         </div>
     </div>
 
-    <div id="otpModal" class="modal">
+    <!-- OTP MODAL -->
+    <div id="otpModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content">
+            <div style="font-size:2.5rem;margin-bottom:1rem;">✉️</div>
             <h3>Verify Your Email</h3>
             <p>We've sent a 6-digit code to <strong id="emailDisplay"></strong></p>
-            <input 
-                type="text" 
-                class="otp-input" 
-                id="otpInput" 
-                placeholder="000000" 
+            <input
+                type="text"
+                inputmode="numeric"
+                class="otp-input"
+                id="otpInput"
+                placeholder="000000"
                 maxlength="6"
+                autocomplete="one-time-code"
             >
-            <button class="btn-verify" id="verifyBtn" onclick="verifyOTP()">
+            <div id="otpAlert" class="alert alert-error" style="margin-bottom:1rem;"></div>
+            <button class="verify-btn" id="verifyBtn" onclick="verifyOTP()">
                 Verify & Continue
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
-            <div id="otpError" class="error-message" style="margin-top: 1rem;"></div>
         </div>
     </div>
 
+    <script src="{{ url_for('static', filename='shared.js') }}"></script>
     <script>
-        const form = document.getElementById('registerForm');
-        const nameInput = document.getElementById('name');
-        const emailInput = document.getElementById('email');
-        const submitBtn = document.getElementById('submitBtn');
-        const errorMessage = document.getElementById('errorMessage');
-        const successMessage = document.getElementById('successMessage');
-        const otpModal = document.getElementById('otpModal');
-        const otpInput = document.getElementById('otpInput');
-        const otpError = document.getElementById('otpError');
-        const verifyBtn = document.getElementById('verifyBtn');
-        const emailDisplay = document.getElementById('emailDisplay');
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof gsap !== 'undefined') {
+                gsap.to('#registerCard', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.2 });
+            } else {
+                document.getElementById('registerCard').style.cssText += 'opacity:1;transform:none;transition:opacity 0.5s,transform 0.5s;';
+            }
+        });
 
-        form.addEventListener('submit', async (e) => {
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-            
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const btn = document.getElementById('submitBtn');
+
+            document.getElementById('registerAlert').classList.remove('show');
+
             if (!name || !email) {
-                showError('Please fill in all fields');
+                showAlert('registerAlert', 'Please fill in all fields.', 'error');
                 return;
             }
 
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Sending verification email...';
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Sending verification email...';
 
             try {
-                const response = await fetch('/register', {
+                const res = await fetch('/register', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, email })
                 });
-
-                const data = await response.json();
+                const data = await res.json();
 
                 if (data.success) {
-                    emailDisplay.textContent = email;
-                    otpModal.classList.add('show');
-                    otpInput.focus();
+                    document.getElementById('emailDisplay').textContent = email;
+                    document.getElementById('otpModal').classList.add('show');
+                    document.getElementById('otpInput').focus();
                 } else {
-                    showError(data.error || 'Registration failed. Please try again.');
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Continue with Email Verification';
+                    showAlert('registerAlert', data.error || 'Registration failed. Please try again.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Continue with Email Verification <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
                 }
-            } catch (error) {
-                showError('Connection error. Please try again.');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Continue with Email Verification';
+            } catch {
+                showAlert('registerAlert', 'Connection error. Please try again.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = 'Continue with Email Verification <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
             }
         });
 
         async function verifyOTP() {
-            const otp = otpInput.value.trim();
+            const otp = document.getElementById('otpInput').value.trim();
+            const btn = document.getElementById('verifyBtn');
+
+            document.getElementById('otpAlert').classList.remove('show');
 
             if (otp.length !== 6) {
-                showOTPError('Please enter a 6-digit OTP');
+                showAlert('otpAlert', 'Please enter the 6-digit OTP.', 'error');
                 return;
             }
 
-            verifyBtn.disabled = true;
-            verifyBtn.textContent = 'Verifying...';
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Verifying...';
 
             try {
-                const response = await fetch('/verify_register_otp', {
+                const res = await fetch('/verify_register_otp', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ otp })
                 });
-
-                const data = await response.json();
+                const data = await res.json();
 
                 if (data.success) {
                     window.location.href = '/register_face';
                 } else {
-                    showOTPError(data.error || 'Invalid OTP. Please try again.');
-                    verifyBtn.disabled = false;
-                    verifyBtn.textContent = 'Verify & Continue';
+                    showAlert('otpAlert', data.error || 'Invalid OTP. Please try again.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Verify & Continue <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
                 }
-            } catch (error) {
-                showOTPError('Connection error. Please try again.');
-                verifyBtn.disabled = false;
-                verifyBtn.textContent = 'Verify & Continue';
+            } catch {
+                showAlert('otpAlert', 'Connection error. Please try again.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = 'Verify & Continue <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
             }
         }
 
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.add('show');
-            successMessage.classList.remove('show');
-            
-            setTimeout(() => {
-                errorMessage.classList.remove('show');
-            }, 5000);
-        }
-
-        function showOTPError(message) {
-            otpError.textContent = message;
-            otpError.classList.add('show');
-            
-            setTimeout(() => {
-                otpError.classList.remove('show');
-            }, 5000);
-        }
-
-        otpInput.addEventListener('input', (e) => {
+        // Numbers only + auto-submit on 6 digits
+        document.getElementById('otpInput').addEventListener('input', (e) => {
             e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            if (e.target.value.length === 6) verifyOTP();
         });
-
-       
-        otpInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                verifyOTP();
-            }
+        document.getElementById('otpInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') verifyOTP();
         });
     </script>
 </body>
