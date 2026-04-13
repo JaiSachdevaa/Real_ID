@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — REAL ID</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='shared.css') }}">
     <style>
@@ -16,81 +16,118 @@
             min-height: 100vh;
             padding: 2rem 1rem;
         }
+
         .login-wrapper {
             width: 100%;
             max-width: 460px;
             position: relative;
             z-index: 1;
         }
+
         .page-logo {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 2.2rem;
         }
+
         .page-logo a {
-            font-family: 'Syne', sans-serif;
-            font-size: 2rem; font-weight: 800;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.2rem;
+            letter-spacing: 3px;
             text-decoration: none;
             color: var(--text-primary);
         }
+
         .page-logo a span {
-            background: linear-gradient(135deg, var(--accent-pink), var(--accent-cyan));
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+
         .login-card {
             background: var(--glass-bg);
             border: 1px solid var(--border);
-            border-radius: 28px;
+            border-radius: 24px;
             padding: 3rem 2.8rem;
-            backdrop-filter: blur(30px) saturate(180%);
+            backdrop-filter: blur(32px) saturate(160%);
             box-shadow: var(--shadow-card);
             opacity: 0;
             transform: translateY(30px);
+            position: relative;
+            overflow: hidden;
         }
+
+        /* subtle top accent line */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), var(--accent-cyan), transparent);
+        }
+
         .login-title {
-            font-family: 'Syne', sans-serif;
-            font-size: 1.7rem; font-weight: 800;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 2.5px;
             margin-bottom: 0.4rem;
+            color: var(--text-primary);
         }
+
         .login-subtitle {
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             color: var(--text-secondary);
-            margin-bottom: 2.2rem;
+            margin-bottom: 2.4rem;
         }
+
         .submit-btn {
             width: 100%;
             padding: 1rem;
             background: var(--btn-primary-bg);
             border: none;
-            border-radius: 14px;
+            border-radius: 12px;
             color: #fff;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1rem; font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem; font-weight: 700;
+            letter-spacing: 0.5px;
             cursor: pointer;
             transition: all 0.25s;
             display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-            box-shadow: 0 4px 20px var(--btn-primary-shadow);
+            box-shadow: 0 4px 22px var(--btn-primary-shadow);
             margin-top: 0.5rem;
         }
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--btn-primary-shadow); }
-        .submit-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--btn-primary-shadow); filter: brightness(1.08); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
         .register-prompt {
             text-align: center;
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             color: var(--text-secondary);
             margin-top: 1.8rem;
         }
+
         .register-prompt a { color: var(--accent-cyan); text-decoration: none; font-weight: 600; }
         .register-prompt a:hover { text-decoration: underline; }
+
         .corner-theme-toggle { position: fixed; top: 1.2rem; right: 1.5rem; z-index: 999; }
+
         .security-badge {
             display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-            margin-top: 1.8rem; font-size: 0.78rem; color: var(--text-muted);
+            margin-top: 1.8rem;
+            font-size: 0.76rem;
+            color: var(--text-muted);
+        }
+
+        /* Input override */
+        .form-input {
+            background: var(--input-bg);
+            border-color: var(--input-border);
         }
     </style>
 </head>
 <body>
+
     <div class="corner-theme-toggle">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
             <span class="theme-icon">☀️</span>
@@ -104,14 +141,14 @@
 
         <div class="login-card" id="loginCard">
             <a href="/" class="back-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 Back to Home
             </a>
 
-            <h1 class="login-title">Welcome Back</h1>
-            <p class="login-subtitle">Enter your email to continue</p>
+            <h1 class="login-title">WELCOME BACK</h1>
+            <p class="login-subtitle">Enter your email to continue to your vault</p>
 
-            <div id="loginAlert" class="alert alert-error"></div>
+            <div id="loginAlert"   class="alert alert-error"></div>
             <div id="loginSuccess" class="alert alert-success"></div>
 
             <form id="loginForm" novalidate>
@@ -128,7 +165,7 @@
                 </div>
                 <button type="submit" class="submit-btn" id="submitBtn">
                     Continue
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
             </form>
 
@@ -154,10 +191,8 @@
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-
             const email = document.getElementById('email').value.trim();
-            const btn = document.getElementById('submitBtn');
-
+            const btn   = document.getElementById('submitBtn');
             document.getElementById('loginAlert').classList.remove('show');
             document.getElementById('loginSuccess').classList.remove('show');
 
@@ -170,7 +205,7 @@
             btn.innerHTML = '<span class="spinner"></span> Checking...';
 
             try {
-                const res = await fetch('/check_email', {
+                const res  = await fetch('/check_email', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email })
@@ -183,12 +218,12 @@
                 } else {
                     showAlert('loginAlert', data.error || 'Email not found. Please register first.', 'error');
                     btn.disabled = false;
-                    btn.innerHTML = 'Continue <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                    btn.innerHTML = 'Continue <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
                 }
             } catch {
                 showAlert('loginAlert', 'Connection error. Please try again.', 'error');
                 btn.disabled = false;
-                btn.innerHTML = 'Continue <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                btn.innerHTML = 'Continue <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
             }
         });
     </script>

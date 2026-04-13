@@ -1,106 +1,197 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Face - REAL ID</title>
+    <title>Register Face — REAL ID</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root,
+        [data-theme="dark"] {
+            --bg:            #050810;
+            --glass-bg:      rgba(255,255,255,0.04);
+            --border:        rgba(255,255,255,0.07);
+            --text-primary:  #eef2ff;
+            --text-sec:      rgba(238,242,255,0.55);
+            --text-muted:    rgba(238,242,255,0.32);
+            --accent-blue:   #4f8cff;
+            --accent-cyan:   #38e8ff;
+            --accent-indigo: #7b5cff;
+            --btn-bg:        linear-gradient(135deg, #4f8cff 0%, #7b5cff 100%);
+            --btn-shadow:    rgba(79,140,255,0.45);
+            --nav-bg:        rgba(5,8,16,0.9);
         }
 
+        [data-theme="light"] {
+            --bg:            #f0f3ff;
+            --glass-bg:      rgba(255,255,255,0.72);
+            --border:        rgba(0,0,60,0.09);
+            --text-primary:  #090c24;
+            --text-sec:      rgba(9,12,36,0.58);
+            --text-muted:    rgba(9,12,36,0.38);
+            --accent-blue:   #2563eb;
+            --accent-cyan:   #0891b2;
+            --accent-indigo: #5b21b6;
+            --btn-bg:        linear-gradient(135deg, #2563eb 0%, #5b21b6 100%);
+            --btn-shadow:    rgba(37,99,235,0.38);
+            --nav-bg:        rgba(240,243,255,0.92);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0a0e1a;
-            color: #ffffff;
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 2rem 1rem;
+            transition: background 0.4s, color 0.4s;
         }
 
-        .bg-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 15% 10%, rgba(79,140,255,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 85% 85%, rgba(123,92,255,0.10) 0%, transparent 55%);
+            pointer-events: none;
             z-index: -1;
-            background: radial-gradient(ellipse at center, #1a1f3a 0%, #0a0e1a 50%);
         }
+
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(79,140,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79,140,255,0.025) 1px, transparent 1px);
+            background-size: 64px 64px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .corner-theme-toggle { position: fixed; top: 1.2rem; right: 1.5rem; z-index: 999; }
+
+        .theme-btn {
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--glass-bg);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            cursor: pointer; font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .theme-btn:hover { transform: scale(1.05); }
 
         .container {
             width: 100%;
-            max-width: 600px;
-            padding: 2rem;
+            max-width: 580px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-logo {
+            text-align: center;
+            margin-bottom: 2.2rem;
+        }
+
+        .page-logo a {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.2rem; letter-spacing: 3px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .page-logo span {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .register-box {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 3rem;
-            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            backdrop-filter: blur(32px) saturate(160%);
+            box-shadow: 0 24px 70px rgba(0,0,0,0.5);
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), var(--accent-cyan), transparent);
         }
 
         .title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem; letter-spacing: 2.5px;
+            margin-bottom: 0.4rem;
+            color: var(--text-primary);
         }
 
         .subtitle {
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 3rem;
+            color: var(--text-sec);
+            margin-bottom: 2.2rem;
+            font-size: 0.9rem;
         }
 
         .instructions {
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 15px;
-            padding: 1.5rem;
+            background: rgba(79,140,255,0.07);
+            border: 1px solid rgba(79,140,255,0.22);
+            border-radius: 14px;
+            padding: 1.4rem 1.6rem;
             margin-bottom: 2rem;
             text-align: left;
         }
 
         .instructions h4 {
-            color: #00f0ff;
-            margin-bottom: 1rem;
+            color: var(--accent-blue);
+            margin-bottom: 0.9rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
         }
 
-        .instructions ul {
-            list-style: none;
-            padding: 0;
-        }
+        .instructions ul { list-style: none; padding: 0; }
 
         .instructions li {
-            padding: 0.5rem 0;
-            padding-left: 1.5rem;
+            padding: 0.4rem 0 0.4rem 1.6rem;
             position: relative;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-sec);
+            font-size: 0.88rem;
         }
 
-        .instructions li:before {
+        .instructions li::before {
             content: "✓";
             position: absolute;
             left: 0;
-            color: #00f0ff;
+            color: var(--accent-cyan);
+            font-weight: 700;
         }
 
         .video-container {
             position: relative;
             width: 100%;
-            max-width: 400px;
-            margin: 0 auto 2rem;
-            border-radius: 20px;
+            max-width: 380px;
+            margin: 0 auto 1.4rem;
+            border-radius: 18px;
             overflow: hidden;
-            border: 3px solid #00f0ff;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+            border: 2px solid rgba(79,140,255,0.4);
+            box-shadow: 0 0 40px rgba(79,140,255,0.2);
             background: #000;
-            min-height: 300px;
+            min-height: 280px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -110,147 +201,119 @@
             width: 100%;
             height: auto;
             display: block;
-            transform: scaleX(-1); /* Mirror effect */
+            transform: scaleX(-1);
         }
 
-        #canvas {
-            display: none;
-        }
+        #canvas { display: none; }
 
         .video-loading {
             position: absolute;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1rem;
+            color: var(--text-sec);
+            font-size: 0.88rem;
             text-align: center;
             padding: 2rem;
         }
 
         .scan-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
             pointer-events: none;
         }
 
         .scan-corners {
             position: absolute;
-            width: 80%;
-            height: 80%;
-            left: 10%;
-            top: 10%;
+            width: 80%; height: 80%;
+            left: 10%; top: 10%;
         }
 
-        .scan-corners::before,
-        .scan-corners::after,
-        .scan-corners span::before,
-        .scan-corners span::after {
+        .scan-corners::before, .scan-corners::after,
+        .scan-corners span::before, .scan-corners span::after {
             content: '';
             position: absolute;
-            width: 40px;
-            height: 40px;
-            border: 3px solid #00f0ff;
+            width: 38px; height: 38px;
+            border: 2.5px solid var(--accent-cyan);
         }
 
-        .scan-corners::before {
-            top: 0;
-            left: 0;
-            border-right: none;
-            border-bottom: none;
-        }
+        .scan-corners::before  { top: 0;    left: 0;  border-right: none; border-bottom: none; }
+        .scan-corners::after   { top: 0;    right: 0; border-left: none;  border-bottom: none; }
+        .scan-corners span::before { bottom: 0; left: 0;  border-right: none; border-top: none; }
+        .scan-corners span::after  { bottom: 0; right: 0; border-left: none;  border-top: none; }
 
-        .scan-corners::after {
-            top: 0;
-            right: 0;
-            border-left: none;
-            border-bottom: none;
-        }
-
-        .scan-corners span::before {
-            bottom: 0;
-            left: 0;
-            border-right: none;
-            border-top: none;
-        }
-
-        .scan-corners span::after {
-            bottom: 0;
-            right: 0;
-            border-left: none;
-            border-top: none;
+        .status {
+            margin-top: 0.8rem;
+            padding: 0.7rem 1rem;
+            border-radius: 10px;
+            background: rgba(79,140,255,0.08);
+            border: 1px solid rgba(79,140,255,0.2);
+            color: var(--accent-blue);
+            font-weight: 600;
+            font-size: 0.85rem;
         }
 
         .btn-capture {
-            padding: 1rem 3rem;
-            background: linear-gradient(135deg, #ff0080, #ff8c00);
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.9rem 2.2rem;
+            background: var(--btn-bg);
             border: none;
-            border-radius: 30px;
+            border-radius: 12px;
             color: white;
-            font-size: 1.1rem;
-            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem; font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.28s;
+            box-shadow: 0 4px 22px var(--btn-shadow);
+            margin-top: 1rem;
         }
 
-        .btn-capture:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(255, 0, 128, 0.5);
-        }
-
-        .btn-capture:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
+        .btn-capture:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 8px 32px var(--btn-shadow); }
+        .btn-capture:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
         .error-message {
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid rgba(255, 0, 0, 0.3);
+            background: rgba(255,60,80,0.09);
+            border: 1px solid rgba(255,60,80,0.28);
             border-radius: 10px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-            color: #ff6b6b;
-            display: none;
+            padding: 0.85rem 1rem;
+            margin-top: 1.2rem;
+            color: #ff7080;
+            font-size: 0.85rem;
+            display: none; text-align: left;
         }
 
-        .error-message.show {
-            display: block;
-        }
+        .error-message.show { display: block; }
 
         .success-message {
-            background: rgba(0, 255, 0, 0.1);
-            border: 1px solid rgba(0, 255, 0, 0.3);
+            background: rgba(56,232,100,0.09);
+            border: 1px solid rgba(56,232,100,0.28);
             border-radius: 10px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-            color: #4ade80;
-            display: none;
+            padding: 0.85rem 1rem;
+            margin-top: 1.2rem;
+            color: #4ae87a;
+            font-size: 0.85rem;
+            display: none; text-align: left;
         }
 
-        .success-message.show {
-            display: block;
-        }
-
-        .status {
-            margin-top: 1rem;
-            padding: 0.75rem;
-            border-radius: 10px;
-            background: rgba(0, 240, 255, 0.1);
-            color: #00f0ff;
-            font-weight: 600;
-        }
+        .success-message.show { display: block; }
     </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
+
+    <div class="corner-theme-toggle">
+        <button class="theme-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">
+            <span id="themeIcon">☀️</span>
+        </button>
+    </div>
 
     <div class="container">
+        <div class="page-logo">
+            <a href="/"><span>REAL ID</span></a>
+        </div>
+
         <div class="register-box">
-            <h2 class="title">Register Your Face</h2>
+            <h2 class="title">REGISTER YOUR FACE</h2>
             <p class="subtitle">We'll use facial recognition to secure your account</p>
 
             <div class="instructions">
-                <h4>📸 Tips for Best Results:</h4>
+                <h4>📸 Tips for Best Results</h4>
                 <ul>
                     <li>Ensure good lighting on your face</li>
                     <li>Look directly at the camera</li>
@@ -270,143 +333,118 @@
 
             <div class="status" id="status">Click button below to start camera</div>
 
-            <button class="btn-capture" id="startCameraBtn" onclick="startCamera()" style="margin-bottom: 1rem;">
+            <button class="btn-capture" id="startCameraBtn" onclick="startCamera()" style="margin-bottom:0.5rem;">
                 📷 Start Camera
             </button>
-            
-            <button class="btn-capture" id="captureBtn" onclick="captureFace()" style="display: none;">
-                Capture & Complete Registration
+
+            <button class="btn-capture" id="captureBtn" onclick="captureFace()" style="display:none;">
+                Capture &amp; Complete Registration
             </button>
 
-            <div id="errorMessage" class="error-message"></div>
+            <div id="errorMessage"   class="error-message"></div>
             <div id="successMessage" class="success-message"></div>
         </div>
     </div>
 
     <script>
-        const videoElement = document.getElementById('videoElement');
-        const canvas = document.getElementById('canvas');
-        const captureBtn = document.getElementById('captureBtn');
+        const THEME_KEY = 'realid-theme';
+        function applyTheme(t) {
+            document.documentElement.setAttribute('data-theme', t);
+            document.getElementById('themeIcon').textContent = t === 'dark' ? '☀️' : '🌙';
+            localStorage.setItem(THEME_KEY, t);
+        }
+        function toggleTheme() {
+            const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+            applyTheme(cur === 'dark' ? 'light' : 'dark');
+        }
+        applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+
+        const videoElement  = document.getElementById('videoElement');
+        const canvas        = document.getElementById('canvas');
+        const captureBtn    = document.getElementById('captureBtn');
         const startCameraBtn = document.getElementById('startCameraBtn');
-        const errorMessage = document.getElementById('errorMessage');
+        const errorMessage  = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
-        const status = document.getElementById('status');
-        const videoLoading = document.querySelector('.video-loading');
-        
+        const status        = document.getElementById('status');
+        const videoLoading  = document.querySelector('.video-loading');
+
         let stream = null;
 
         async function startCamera() {
             try {
                 status.textContent = '📷 Requesting camera access...';
                 startCameraBtn.disabled = true;
-                
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        width: { ideal: 640 },
-                        height: { ideal: 480 },
-                        facingMode: 'user'
-                    } 
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
                 });
-                
                 videoElement.srcObject = stream;
                 videoLoading.style.display = 'none';
-                
                 videoElement.onloadedmetadata = () => {
                     status.textContent = '✓ Camera ready - Position your face in the frame';
-                    status.style.background = 'rgba(0, 255, 0, 0.1)';
-                    status.style.color = '#4ade80';
-                    
+                    status.style.background = 'rgba(56,232,100,0.09)';
+                    status.style.color      = '#4ae87a';
                     startCameraBtn.style.display = 'none';
-                    captureBtn.style.display = 'block';
+                    captureBtn.style.display     = 'block';
                 };
-                
             } catch (error) {
-                console.error('Camera error:', error);
                 let errorMsg = 'Camera access denied. ';
-                
-                if (error.name === 'NotAllowedError') {
-                    errorMsg += 'Please allow camera access and refresh the page.';
-                } else if (error.name === 'NotFoundError') {
-                    errorMsg += 'No camera found on your device.';
-                } else if (error.name === 'NotReadableError') {
-                    errorMsg += 'Camera is already in use by another application.';
-                } else {
-                    errorMsg += error.message;
-                }
-                
+                if      (error.name === 'NotAllowedError')  errorMsg += 'Please allow camera access and refresh the page.';
+                else if (error.name === 'NotFoundError')    errorMsg += 'No camera found on your device.';
+                else if (error.name === 'NotReadableError') errorMsg += 'Camera is already in use by another application.';
+                else errorMsg += error.message;
                 videoLoading.textContent = '⚠️ ' + errorMsg;
-                videoLoading.style.color = '#ff6b6b';
-                status.textContent = '⚠️ Camera error';
-                status.style.background = 'rgba(255, 0, 0, 0.1)';
-                status.style.color = '#ff6b6b';
-                startCameraBtn.disabled = false;
+                videoLoading.style.color = '#ff7080';
+                status.textContent       = '⚠️ Camera error';
+                status.style.background  = 'rgba(255,60,80,0.09)';
+                status.style.color       = '#ff7080';
+                startCameraBtn.disabled  = false;
                 showError(errorMsg);
             }
         }
 
         async function captureFace() {
-            if (!stream) {
-                showError('Please start the camera first');
-                return;
-            }
-
+            if (!stream) { showError('Please start the camera first'); return; }
             captureBtn.disabled = true;
             captureBtn.textContent = 'Capturing...';
             status.textContent = '📸 Capturing your face...';
             errorMessage.classList.remove('show');
             successMessage.classList.remove('show');
-
             try {
-                canvas.width = videoElement.videoWidth;
+                canvas.width  = videoElement.videoWidth;
                 canvas.height = videoElement.videoHeight;
-                
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-                
                 canvas.toBlob(async (blob) => {
                     const formData = new FormData();
                     formData.append('image', blob, 'face.jpg');
-                    
                     try {
-                        const response = await fetch('/capture_face', {
-                            method: 'POST',
-                            body: formData
-                        });
-
-                        const data = await response.json();
-
+                        const response = await fetch('/capture_face', { method: 'POST', body: formData });
+                        const data     = await response.json();
                         if (data.success) {
-                            if (stream) {
-                                stream.getTracks().forEach(track => track.stop());
-                            }
-                            
+                            if (stream) stream.getTracks().forEach(track => track.stop());
                             successMessage.textContent = '✓ Face registered successfully! Redirecting to your vault...';
                             successMessage.classList.add('show');
-                            status.textContent = '✓ Registration complete!';
-                            status.style.background = 'rgba(0, 255, 0, 0.1)';
-                            status.style.color = '#4ade80';
-
-                            setTimeout(() => {
-                                window.location.href = '/vault';
-                            }, 2000);
+                            status.textContent      = '✓ Registration complete!';
+                            status.style.background = 'rgba(56,232,100,0.09)';
+                            status.style.color      = '#4ae87a';
+                            setTimeout(() => { window.location.href = '/vault'; }, 2000);
                         } else {
                             showError(data.error || 'Failed to capture face. Please try again.');
-                            captureBtn.disabled = false;
-                            captureBtn.textContent = 'Try Again';
-                            status.textContent = 'Position your face within the frame';
+                            captureBtn.disabled     = false;
+                            captureBtn.textContent  = 'Try Again';
+                            status.textContent      = 'Position your face within the frame';
                         }
                     } catch (error) {
                         showError('Connection error. Please try again.');
-                        captureBtn.disabled = false;
+                        captureBtn.disabled    = false;
                         captureBtn.textContent = 'Try Again';
                     }
                 }, 'image/jpeg', 0.95);
-                
             } catch (error) {
                 showError('Failed to capture image. Please try again.');
-                captureBtn.disabled = false;
+                captureBtn.disabled    = false;
                 captureBtn.textContent = 'Try Again';
-                status.textContent = 'Error occurred. Please try again.';
+                status.textContent     = 'Error occurred. Please try again.';
             }
         }
 
@@ -416,9 +454,7 @@
         }
 
         window.addEventListener('beforeunload', () => {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
+            if (stream) stream.getTracks().forEach(track => track.stop());
         });
     </script>
 </body>
