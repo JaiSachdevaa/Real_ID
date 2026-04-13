@@ -1,12 +1,6 @@
-/* ═══════════════════════════════════════════════════════════
-   REAL ID — Shared JavaScript
-   shared.js
-   ═══════════════════════════════════════════════════════════ */
-
 (function () {
     'use strict';
 
-    /* ─── THEME MANAGEMENT ──────────────────────────────────── */
     const THEME_KEY = 'realid-theme';
 
     function getTheme() {
@@ -24,12 +18,8 @@
     function toggleTheme() {
         const current = document.documentElement.getAttribute('data-theme') || 'dark';
         const next = current === 'dark' ? 'light' : 'dark';
-
-        // Smooth transition
         document.documentElement.style.transition = 'background 0.4s, color 0.4s';
         applyTheme(next);
-
-        // Animate icon
         const btn = document.getElementById('themeToggle');
         if (btn) {
             btn.style.transform = 'scale(0.85) rotate(180deg)';
@@ -44,7 +34,6 @@
         const themeBtn = document.getElementById('themeToggle');
         if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
 
-        /* ─── NAVBAR SCROLL ───────────────────────────────────── */
         const nav = document.getElementById('main-nav');
         if (nav) {
             window.addEventListener('scroll', () => {
@@ -52,10 +41,8 @@
             }, { passive: true });
         }
 
-        /* ─── MOBILE MENU ─────────────────────────────────────── */
         const menuToggle = document.getElementById('menuToggle');
         const mobileMenu = document.getElementById('mobileMenu');
-
         if (menuToggle && mobileMenu) {
             menuToggle.addEventListener('click', () => {
                 const isOpen = mobileMenu.classList.toggle('open');
@@ -64,7 +51,6 @@
             });
         }
 
-        /* ─── SMOOTH ANCHOR SCROLL ────────────────────────────── */
         document.querySelectorAll('a[href^="#"]').forEach(link => {
             link.addEventListener('click', (e) => {
                 const target = document.querySelector(link.getAttribute('href'));
@@ -78,16 +64,15 @@
             });
         });
 
-        /* ─── CURSOR GLOW EFFECT ──────────────────────────────── */
         let cursorGlow = document.querySelector('.cursor-glow');
         if (!cursorGlow) {
             cursorGlow = document.createElement('div');
             cursorGlow.className = 'cursor-glow';
             cursorGlow.style.cssText = `
                 position: fixed;
-                width: 300px; height: 300px;
+                width: 320px; height: 320px;
                 pointer-events: none;
-                background: radial-gradient(circle, rgba(0,240,255,0.04) 0%, transparent 70%);
+                background: radial-gradient(circle, rgba(79,140,255,0.045) 0%, transparent 70%);
                 border-radius: 50%;
                 transform: translate(-50%,-50%);
                 z-index: 0;
@@ -99,16 +84,14 @@
 
         document.addEventListener('mousemove', (e) => {
             cursorGlow.style.left = e.clientX + 'px';
-            cursorGlow.style.top = e.clientY + 'px';
+            cursorGlow.style.top  = e.clientY + 'px';
             cursorGlow.style.opacity = '1';
         });
+
         document.addEventListener('mouseleave', () => { cursorGlow.style.opacity = '0'; });
 
-        /* ─── PAGE ENTRANCE ───────────────────────────────────── */
         document.body.classList.add('page-enter');
 
-        /* ─── INTERSECTION OBSERVER FALLBACK ──────────────────── */
-        // For browsers without GSAP loaded
         if (typeof gsap === 'undefined') {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -127,7 +110,6 @@
         }
     });
 
-    /* ─── GLOBAL HELPERS ──────────────────────────────────────── */
     window.closeMobileMenu = function () {
         const mobileMenu = document.getElementById('mobileMenu');
         const menuToggle = document.getElementById('menuToggle');
