@@ -11,7 +11,7 @@ A biometric password manager that uses **facial recognition** as the primary log
 
 ## What it does
 
-- **Register** with your email + face — no password required
+- **Register** with your email + face - no password required
 - **Login** by scanning your face or entering an email OTP as backup
 - **Store passwords** in an AES-256 encrypted vault
 - **Add, edit, delete** saved credentials from the dashboard
@@ -141,9 +141,9 @@ Open `https://localhost:5000` in your browser. Accept the self-signed certificat
 
 ---
 
-## Anti-spoof model (optional)
+## Anti-spoof model 
 
-If you have a trained anti-spoof model, place it in the root directory as `antispoof.keras` or `antispoof.h5`. The app runs fine without it — it just skips spoof detection.
+If you have a trained anti-spoof model, place it in the root directory as `antispoof.keras` or `antispoof.h5`.
 
 The model should be a binary classifier trained on real vs fake faces:
 - Class 0 → Fake (photo / screen)
