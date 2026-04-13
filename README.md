@@ -184,9 +184,9 @@ tf-keras
 
 ## How the face auth works
 
-1. **Registration** — user's face is captured via webcam, run through DeepFace to extract a 128-dimensional Facenet embedding, then stored as a binary blob in SQLite
-2. **Login** — a new frame is captured, anti-spoofed, embedded, then compared to the stored embedding using euclidean distance (threshold: 10.0)
-3. **OTP fallback** — if face scan fails or camera is unavailable, a 6-digit OTP is emailed and verified in memory
+1. **Registration** - user's face is captured via webcam, run through DeepFace to extract a 128-dimensional Facenet embedding, then stored as a binary blob in SQLite
+2. **Login** - a new frame is captured, anti-spoofed, embedded, then compared to the stored embedding using euclidean distance (threshold: 10.0)
+3. **OTP fallback** - if face scan fails or camera is unavailable, a 6-digit OTP is emailed and verified in memory
 
 ---
 
