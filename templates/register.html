@@ -1,12 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register — REAL ID</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <title>Create account — REAL ID</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='shared.css') }}">
     <style>
         body {
@@ -16,164 +13,94 @@
             min-height: 100vh;
             padding: 2rem 1rem;
         }
+        .auth-wrapper { width: 100%; max-width: 420px; }
+        .page-logo { text-align: center; margin-bottom: 1.75rem; }
+        .page-logo a { font-weight: 700; font-size: 1.2rem; text-decoration: none; color: var(--text); }
+        .page-logo a span { color: var(--accent); }
 
-        .register-wrapper {
-            width: 100%;
-            max-width: 480px;
-            position: relative;
-            z-index: 1;
+        /* Onboarding progress */
+        .progress-steps { display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-bottom: 1.75rem; }
+        .progress-step {
+            display: flex; align-items: center; gap: 0.4rem;
+            font-size: 0.76rem; font-weight: 600; color: var(--text-muted);
         }
-
-        .page-logo {
-            text-align: center;
-            margin-bottom: 2.2rem;
+        .progress-dot {
+            width: 20px; height: 20px; border-radius: 50%;
+            border: 1.5px solid var(--border-strong);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.68rem; color: var(--text-muted);
         }
+        .progress-step.active .progress-dot { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
+        .progress-step.active { color: var(--text); }
+        .progress-line { width: 24px; height: 1px; background: var(--border); }
 
-        .page-logo a {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.2rem;
-            letter-spacing: 3px;
-            text-decoration: none;
-            color: var(--text-primary);
+        .auth-card { padding: 2.25rem 2rem; }
+        .auth-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text); }
+        .auth-subtitle { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.75rem; }
+        .submit-btn { width: 100%; margin-top: 0.3rem; }
+        .auth-prompt { text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-top: 1.5rem; }
+        .auth-prompt a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .auth-prompt a:hover { text-decoration: underline; }
+        .corner-theme-toggle { position: fixed; top: 1.2rem; right: 1.5rem; }
+        .alert { margin-bottom: 1rem; }
+        .verify-btn { width: 100%; }
+        .modal-content .modal-icon {
+            width: 40px; height: 40px; border-radius: 9px;
+            background: var(--accent-subtle); color: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1rem;
         }
-
-        .page-logo a span {
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .register-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 3rem 2.8rem;
-            backdrop-filter: blur(32px) saturate(160%);
-            box-shadow: var(--shadow-card);
-            opacity: 0;
-            transform: translateY(30px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .register-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 10%; right: 10%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-indigo), var(--accent-cyan), transparent);
-        }
-
-        .register-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2rem;
-            letter-spacing: 2.5px;
-            margin-bottom: 0.4rem;
-            color: var(--text-primary);
-        }
-
-        .register-subtitle {
-            font-size: 0.88rem;
-            color: var(--text-secondary);
-            margin-bottom: 2.4rem;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 1rem;
-            background: var(--btn-primary-bg);
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.95rem; font-weight: 700;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: all 0.25s;
-            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-            box-shadow: 0 4px 22px var(--btn-primary-shadow);
-            margin-top: 0.5rem;
-        }
-
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--btn-primary-shadow); filter: brightness(1.08); }
-        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        .login-prompt {
-            text-align: center;
-            font-size: 0.86rem;
-            color: var(--text-secondary);
-            margin-top: 1.8rem;
-        }
-
-        .login-prompt a { color: var(--accent-cyan); text-decoration: none; font-weight: 600; }
-        .login-prompt a:hover { text-decoration: underline; }
-
-        .corner-theme-toggle { position: fixed; top: 1.2rem; right: 1.5rem; z-index: 999; }
-
-        /* Verify button in modal */
-        .verify-btn {
-            width: 100%;
-            padding: 0.9rem;
-            background: var(--btn-primary-bg);
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.95rem; font-weight: 700;
-            cursor: pointer;
-            transition: all 0.25s;
-            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-            box-shadow: 0 4px 22px var(--btn-primary-shadow);
-        }
-
-        .verify-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
-        .verify-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        .modal-content h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; letter-spacing: 2px; margin-bottom: 0.6rem; }
-        .modal-content p  { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.92rem; }
-        .modal-content strong { color: var(--accent-cyan); }
+        .modal-content .modal-icon svg { width: 20px; height: 20px; }
     </style>
 </head>
 <body>
 
     <div class="corner-theme-toggle">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-            <span class="theme-icon">☀️</span>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
     </div>
 
-    <div class="register-wrapper">
+    <div class="auth-wrapper">
         <div class="page-logo">
             <a href="/">REAL<span>ID</span></a>
         </div>
 
-        <div class="register-card" id="registerCard">
-            <a href="/" class="back-btn">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Back to Home
+        <div class="progress-steps">
+            <div class="progress-step active"><span class="progress-dot">1</span>Account</div>
+            <div class="progress-line"></div>
+            <div class="progress-step"><span class="progress-dot">2</span>Verify</div>
+            <div class="progress-line"></div>
+            <div class="progress-step"><span class="progress-dot">3</span>Face</div>
+        </div>
+
+        <div class="card auth-card">
+            <a href="/" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back to home
             </a>
 
-            <h1 class="register-title">CREATE ACCOUNT</h1>
-            <p class="register-subtitle">Join thousands securing their passwords with biometrics</p>
+            <h1 class="auth-title">Create your account</h1>
+            <p class="auth-subtitle">Set up biometric login for your passwords</p>
 
             <div id="registerAlert"   class="alert alert-error"></div>
             <div id="registerSuccess" class="alert alert-success"></div>
 
             <form id="registerForm" novalidate>
                 <div class="form-group">
-                    <label class="form-label" for="name">Full Name</label>
+                    <label class="form-label" for="name">Full name</label>
                     <input
                         type="text"
                         id="name"
                         class="form-input"
-                        placeholder="John Doe"
+                        placeholder="Jane Doe"
                         required
                         autocomplete="name"
                     >
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="email">Email Address</label>
+                    <label class="form-label" for="email">Email address</label>
                     <input
                         type="email"
                         id="email"
@@ -183,13 +110,13 @@
                         autocomplete="email"
                     >
                 </div>
-                <button type="submit" class="submit-btn" id="submitBtn">
-                    Continue with Email Verification
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                <button type="submit" class="btn btn-primary submit-btn" id="submitBtn">
+                    Continue
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
             </form>
 
-            <p class="login-prompt">
+            <p class="auth-prompt">
                 Already have an account? <a href="/login">Sign in</a>
             </p>
         </div>
@@ -198,9 +125,11 @@
     <!-- OTP MODAL -->
     <div id="otpModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content">
-            <div style="font-size:2.5rem;margin-bottom:1rem;">✉️</div>
-            <h3>VERIFY EMAIL</h3>
-            <p>We've sent a 6-digit code to <strong id="emailDisplay"></strong></p>
+            <div class="modal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            </div>
+            <h3>Verify your email</h3>
+            <p>We've sent a 6-digit code to <strong id="emailDisplay" style="color:var(--text);"></strong></p>
             <input
                 type="text"
                 inputmode="numeric"
@@ -210,23 +139,18 @@
                 maxlength="6"
                 autocomplete="one-time-code"
             >
-            <div id="otpAlert" class="alert alert-error" style="margin-bottom:1rem;text-align:left;"></div>
-            <button class="verify-btn" id="verifyBtn" onclick="verifyOTP()">
-                Verify & Continue
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <div id="otpAlert" class="alert alert-error" style="margin-bottom:1rem;"></div>
+            <button class="btn btn-primary verify-btn" id="verifyBtn" onclick="verifyOTP()">
+                Verify and continue
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='shared.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof gsap !== 'undefined') {
-                gsap.to('#registerCard', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.2 });
-            } else {
-                document.getElementById('registerCard').style.cssText += 'opacity:1;transform:none;transition:opacity 0.5s,transform 0.5s;';
-            }
-        });
+        const registerBtnHTML = document.getElementById('submitBtn').innerHTML;
+        const verifyBtnHTML   = document.getElementById('verifyBtn').innerHTML;
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -258,12 +182,12 @@
                 } else {
                     showAlert('registerAlert', data.error || 'Registration failed. Please try again.', 'error');
                     btn.disabled = false;
-                    btn.innerHTML = 'Continue with Email Verification <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                    btn.innerHTML = registerBtnHTML;
                 }
             } catch {
                 showAlert('registerAlert', 'Connection error. Please try again.', 'error');
                 btn.disabled = false;
-                btn.innerHTML = 'Continue with Email Verification <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                btn.innerHTML = registerBtnHTML;
             }
         });
 
@@ -293,12 +217,12 @@
                 } else {
                     showAlert('otpAlert', data.error || 'Invalid OTP. Please try again.', 'error');
                     btn.disabled = false;
-                    btn.innerHTML = 'Verify & Continue <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                    btn.innerHTML = verifyBtnHTML;
                 }
             } catch {
                 showAlert('otpAlert', 'Connection error. Please try again.', 'error');
                 btn.disabled = false;
-                btn.innerHTML = 'Verify & Continue <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                btn.innerHTML = verifyBtnHTML;
             }
         }
 

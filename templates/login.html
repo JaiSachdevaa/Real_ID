@@ -1,12 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — REAL ID</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <title>Sign in — REAL ID</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='shared.css') }}">
     <style>
         body {
@@ -16,144 +13,55 @@
             min-height: 100vh;
             padding: 2rem 1rem;
         }
-
-        .login-wrapper {
-            width: 100%;
-            max-width: 460px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .page-logo {
-            text-align: center;
-            margin-bottom: 2.2rem;
-        }
-
-        .page-logo a {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.2rem;
-            letter-spacing: 3px;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
-
-        .page-logo a span {
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .login-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 3rem 2.8rem;
-            backdrop-filter: blur(32px) saturate(160%);
-            box-shadow: var(--shadow-card);
-            opacity: 0;
-            transform: translateY(30px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* subtle top accent line */
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 10%; right: 10%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-blue), var(--accent-cyan), transparent);
-        }
-
-        .login-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2rem;
-            letter-spacing: 2.5px;
-            margin-bottom: 0.4rem;
-            color: var(--text-primary);
-        }
-
-        .login-subtitle {
-            font-size: 0.88rem;
-            color: var(--text-secondary);
-            margin-bottom: 2.4rem;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 1rem;
-            background: var(--btn-primary-bg);
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.95rem; font-weight: 700;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: all 0.25s;
-            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-            box-shadow: 0 4px 22px var(--btn-primary-shadow);
-            margin-top: 0.5rem;
-        }
-
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--btn-primary-shadow); filter: brightness(1.08); }
-        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        .register-prompt {
-            text-align: center;
-            font-size: 0.86rem;
-            color: var(--text-secondary);
-            margin-top: 1.8rem;
-        }
-
-        .register-prompt a { color: var(--accent-cyan); text-decoration: none; font-weight: 600; }
-        .register-prompt a:hover { text-decoration: underline; }
-
-        .corner-theme-toggle { position: fixed; top: 1.2rem; right: 1.5rem; z-index: 999; }
-
-        .security-badge {
+        .auth-wrapper { width: 100%; max-width: 400px; }
+        .page-logo { text-align: center; margin-bottom: 1.75rem; }
+        .page-logo a { font-weight: 700; font-size: 1.2rem; text-decoration: none; color: var(--text); }
+        .page-logo a span { color: var(--accent); }
+        .auth-card { padding: 2.25rem 2rem; }
+        .auth-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text); }
+        .auth-subtitle { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.75rem; }
+        .submit-btn { width: 100%; margin-top: 0.3rem; }
+        .auth-prompt { text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-top: 1.5rem; }
+        .auth-prompt a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .auth-prompt a:hover { text-decoration: underline; }
+        .corner-theme-toggle { position: fixed; top: 1.2rem; right: 1.5rem; }
+        .security-note {
             display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-            margin-top: 1.8rem;
-            font-size: 0.76rem;
-            color: var(--text-muted);
+            margin-top: 1.5rem; font-size: 0.76rem; color: var(--text-muted);
         }
-
-        /* Input override */
-        .form-input {
-            background: var(--input-bg);
-            border-color: var(--input-border);
-        }
+        .security-note svg { width: 13px; height: 13px; }
+        .alert { margin-bottom: 1rem; }
     </style>
 </head>
 <body>
 
     <div class="corner-theme-toggle">
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-            <span class="theme-icon">☀️</span>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
     </div>
 
-    <div class="login-wrapper">
+    <div class="auth-wrapper">
         <div class="page-logo">
             <a href="/">REAL<span>ID</span></a>
         </div>
 
-        <div class="login-card" id="loginCard">
-            <a href="/" class="back-btn">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Back to Home
+        <div class="card auth-card">
+            <a href="/" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back to home
             </a>
 
-            <h1 class="login-title">WELCOME BACK</h1>
-            <p class="login-subtitle">Enter your email to continue to your vault</p>
+            <h1 class="auth-title">Welcome back</h1>
+            <p class="auth-subtitle">Enter your email to continue to your vault</p>
 
             <div id="loginAlert"   class="alert alert-error"></div>
             <div id="loginSuccess" class="alert alert-success"></div>
 
             <form id="loginForm" novalidate>
                 <div class="form-group">
-                    <label class="form-label" for="email">Email Address</label>
+                    <label class="form-label" for="email">Email address</label>
                     <input
                         type="email"
                         id="email"
@@ -163,31 +71,26 @@
                         autocomplete="email"
                     >
                 </div>
-                <button type="submit" class="submit-btn" id="submitBtn">
+                <button type="submit" class="btn btn-primary submit-btn" id="submitBtn">
                     Continue
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </button>
             </form>
 
-            <p class="register-prompt">
-                Don't have an account? <a href="/register">Create one now</a>
+            <p class="auth-prompt">
+                Don't have an account? <a href="/register">Create one</a>
             </p>
+        </div>
 
-            <div class="security-badge">
-                <span>🔒</span> Secured with AES-256 encryption
-            </div>
+        <div class="security-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Secured with biometric authentication
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='shared.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof gsap !== 'undefined') {
-                gsap.to('#loginCard', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', delay: 0.2 });
-            } else {
-                document.getElementById('loginCard').style.cssText += 'opacity:1;transform:none;transition:opacity 0.5s,transform 0.5s;';
-            }
-        });
+        const continueBtnHTML = document.getElementById('submitBtn').innerHTML;
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -213,17 +116,17 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    showAlert('loginSuccess', 'Email verified! Redirecting...', 'success');
-                    setTimeout(() => window.location.href = '/auth_method', 1000);
+                    showAlert('loginSuccess', 'Email verified. Redirecting...', 'success');
+                    setTimeout(() => window.location.href = '/auth_method', 800);
                 } else {
                     showAlert('loginAlert', data.error || 'Email not found. Please register first.', 'error');
                     btn.disabled = false;
-                    btn.innerHTML = 'Continue <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                    btn.innerHTML = continueBtnHTML;
                 }
             } catch {
                 showAlert('loginAlert', 'Connection error. Please try again.', 'error');
                 btn.disabled = false;
-                btn.innerHTML = 'Continue <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+                btn.innerHTML = continueBtnHTML;
             }
         });
     </script>
